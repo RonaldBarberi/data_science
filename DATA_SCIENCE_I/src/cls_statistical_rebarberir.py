@@ -72,7 +72,7 @@ class StatisticalREBR:
    
    
     @staticmethod
-    def coefficient_variation(col_quantitative, type_dt: str):
+    def coefficient_variation(col_quantitative, type_dt: str, print_result=False):
         """
         - CV <= 0.10 : baja dispersión
         - 0.10 < CV <= 0.30 : dispersión moderada
@@ -81,6 +81,9 @@ class StatisticalREBR:
         sigma2_s2 = StatisticalREBR.deviation(col_quantitative, type_dt)
         u = StatisticalREBR.arithmetic_mean(col_quantitative)
         cv = round((sigma2_s2 / u) * 100, 2)
+
+        if print_result is True:
+            print(f'The coefficient variation is: {cv:.2f}')
 
         return cv
 
@@ -123,7 +126,10 @@ class StatisticalREBR:
             ax.axvline(u,  color='red',     linestyle='--', label=f'Arithmetic Mean = {u:.2f}')
             ax.axvline(Me, color='#00FF00', linestyle='-.', label=f'Median = {Me:.2f}')
 
-            ax.set_title('Gráfica de asimetría')
+            # ax.set_title(f'Gráfica de asimetría {col_quantitative.capitalize()}')
+            name = getattr(col_quantitative, "name", None) or "variable"
+            nice = str(name).replace("_", " ").title()   # opcional: formatea
+            ax.set_title(f"Gráfica de asimetría — {nice}")
             ax.set_facecolor('#5A5A59')
             ax.grid(True, linestyle='--', linewidth=0.5, alpha=0.5, color='white')
             ax.set_axisbelow(True)
@@ -136,6 +142,7 @@ class StatisticalREBR:
         else:
             raise ValueError('graph debe ser True o False')
 
+        print(f'The asymmetry coefficient is: {As:.2f}')
         return As
     
 
