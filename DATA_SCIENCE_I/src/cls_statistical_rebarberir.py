@@ -1,7 +1,7 @@
 """
 create_at: 2025-08-18 19:07
 
-update_at: 2025-08-18 19:07
+update_at: 2025-09-09 10:07
 
 @author: Ronal.Barberi
 """
@@ -17,89 +17,133 @@ import matplotlib.pyplot as plt
 class StatisticalREBR:
 
     @staticmethod
-    def mode(col_quantitative):
-        freq = col_quantitative.value_counts()
-        Mo = freq.index[0]
+    def limpieza_valores(values):
+        arr = np.array(values, dtype="object")
+
+        cleaned = []
+        for v in arr:
+            try:
+                fv = float(v)
+            except (TypeError, ValueError):
+                continue
+            if np.isfinite(fv):
+                cleaned.append(fv)
+
+        return cleaned
+
+
+    @staticmethod
+    def valor_min_max(col_quantitative):
+        datos = StatisticalREBR.limpieza_valores(col_quantitative)
+        val_min = min(datos)
+        val_max = max(datos)
+
+        return val_min, val_max
+
+
+    @staticmethod
+    def moda(col_quantitative):
+        datos = StatisticalREBR.limpieza_valores(col_quantitative)
+
+        if not datos:
+            return None
+
+        conteo = {}
+        for v in datos:
+            conteo[v] = conteo.get(v, 0) + 1
+
+        Mo = max(conteo, key=conteo.get)
 
         return Mo
 
 
     @staticmethod
-    def median(col_quantitative):
-        N = len(col_quantitative)
-        dt_order_asc = col_quantitative.sort_values().reset_index(drop=True)
-
-        if N % 2 == 1:
-            Me = dt_order_asc[N // 2]
-        else:
-            Me = (dt_order_asc[(N // 2) - 1] + dt_order_asc[N // 2]) / 2
-
-        return round(Me, 2)
-
-
-    @staticmethod
-    def arithmetic_mean(col_quantitative):
-        E_xi = col_quantitative.sum()
-        N = len(col_quantitative)
+    def media(col_quantitative):
+        datos = StatisticalREBR.limpieza_valores(col_quantitative)
+        E_xi = sum(datos)
+        N = len(datos)
         u = round(E_xi / N, 2)
 
         return u
 
 
     @staticmethod
-    def variance(col_quantitative, type_dt: str):
-        N = len(col_quantitative)
-        u = StatisticalREBR.arithmetic_mean(col_quantitative)
+    def mediana(col_quantitative):
+        datos = StatisticalREBR.limpieza_valores(col_quantitative)
+        N = len(datos)
+        dt_order_asc = sorted(datos)
+
+        if N % 2 == 1:
+            Me = dt_order_asc[N // 2]
+        else:
+            Me = (dt_order_asc[(N // 2) - 1] + dt_order_asc[N // 2]) / 2
+
+        return Me
+
+
+    @staticmethod
+    def varianza(col_quantitative, type_dt: str):
+        datos = StatisticalREBR.limpieza_valores(col_quantitative)
+        N = len(datos)
+        u = StatisticalREBR.media(col_quantitative)
+        sc = sum((x - u) ** 2 for x in datos) # usar suma de cuadrados de desviaciones
 
         if type_dt == 'P': # sigma2
-            var = round(np.sum((col_quantitative - u) ** 2) / N, 2)
+            var = round(sc / N, 2)
 
         elif type_dt == 'M': # s2
-            var = round(np.sum((col_quantitative - u) ** 2) / (N - 1), 2)
-        
+            if N < 2:
+                return None
+            var = round(sc / (N - 1), 2)
+
         else:
-            print(f'Type variable not is correct: {type_dt}')
+            print(f'[ERROR] tipo de datos (poblacional/muestral) no aclarado: {type_dt}')
 
         return var
 
         
     @staticmethod
-    def deviation(col_quantitative, type_dt: str):
-        sigma2_s2 = StatisticalREBR.variance(col_quantitative, type_dt)
-        dev = round(np.sqrt(sigma2_s2), 2)
+    def desviacion_estandar(col_quantitative, type_dt: str):
+        sigma2_s2 = StatisticalREBR.varianza(col_quantitative, type_dt)
+        dev_est = round(sigma2_s2** 0.5, 2)
 
-        return dev
+        return dev_est
    
    
     @staticmethod
-    def coefficient_variation(col_quantitative, type_dt: str, print_result=False):
+    def coeficiente_variacion(col_quantitative, type_dt: str, print_result=False):
         """
         - CV <= 0.10 : baja dispersión
         - 0.10 < CV <= 0.30 : dispersión moderada
         - CV > 0.30 : alta dispersión (usar mediana como tendencia central)
         """
-        sigma2_s2 = StatisticalREBR.deviation(col_quantitative, type_dt)
-        u = StatisticalREBR.arithmetic_mean(col_quantitative)
-        cv = round((sigma2_s2 / u) * 100, 2)
+        sigma2_s2 = StatisticalREBR.desviacion_estandar(col_quantitative, type_dt)
+        u = StatisticalREBR.media(col_quantitative)
+        cv = round((sigma2_s2 / abs(u)) * 100, 2)
+
+        if abs(u) < 1e-6:
+            print('[WARN] la media es demasiado cercana a 0, el CV no es interpretable.')
 
         if print_result is True:
-            print(f'The coefficient variation is: {cv:.2f}')
-
+            print(f'[OK] el coeficiente de variacion es: {cv:.2f}')
+        
         return cv
 
 
     @staticmethod
-    def asymmetry_coefficient(col_quantitative, type_dt: str, graph=False):
+    def coeficiente_asimetria(col_quantitative, type_dt: str, graph=False):
         """
         - As > 0 : distribución asimétrica positiva o sesgada a la derecha
         - As < 0 : distribución asimétrica negativa o sesgada a la izquierda
         - As = 0 : los datos siguen una distribución simétrica.
         """
-        x = np.asarray(col_quantitative, dtype=float)
-        n = len(x)
-        dev = StatisticalREBR.deviation(x, type_dt)
-        u = StatisticalREBR.arithmetic_mean(col_quantitative)
-        Me = StatisticalREBR.median(col_quantitative)
+        x_raw = np.asarray(col_quantitative, dtype=float)
+        mask = np.isfinite(x_raw) # True si es número finito (no NaN/Inf)
+        x = x_raw[mask]
+        n = x.size
+        dev = StatisticalREBR.desviacion_estandar(col_quantitative, type_dt)
+        u = StatisticalREBR.media(col_quantitative)
+        Me = StatisticalREBR.mediana(col_quantitative)
 
         if dev == 0:
             return 0.0
@@ -111,10 +155,10 @@ class StatisticalREBR:
             As = g1
         elif type_dt.upper() == 'M':
             if n < 3:
-                raise ValueError("n debe ser >= 3 para usar el ajuste muestral.")
+                raise ValueError("[ERROR] n debe ser >= 3 para usar el ajuste muestral.")
             As = (np.sqrt(n * (n - 1)) / (n - 2)) * g1
         else:
-            raise ValueError("type_dt debe ser 'P' o 'M'")
+            raise ValueError("[ERROR] type_dt debe ser 'P' o 'M'")
 
         As = round(float(As), 4)
         
@@ -122,14 +166,12 @@ class StatisticalREBR:
             fig, ax = plt.subplots(figsize=(14, 4), dpi=120)
 
             sns.kdeplot(col_quantitative, ax=ax, fill=False, color='#00aea9', linewidth=2)
+            ax.axvline(u,  color='red',     linestyle='--', label=f'Media = {u:.2f}')
+            ax.axvline(Me, color='#00FF00', linestyle='-.', label=f'Mediana = {Me:.2f}')
 
-            ax.axvline(u,  color='red',     linestyle='--', label=f'Arithmetic Mean = {u:.2f}')
-            ax.axvline(Me, color='#00FF00', linestyle='-.', label=f'Median = {Me:.2f}')
-
-            # ax.set_title(f'Gráfica de asimetría {col_quantitative.capitalize()}')
-            name = getattr(col_quantitative, "name", None) or "variable"
-            nice = str(name).replace("_", " ").title()   # opcional: formatea
-            ax.set_title(f"Gráfica de asimetría — {nice}")
+            name = getattr(col_quantitative, 'name', None) or 'variable'
+            nice = str(name).replace('_', ' ').title()   # opcional: formatea
+            ax.set_title(f'Gráfica de asimetría — {nice}')
             ax.set_facecolor('#5A5A59')
             ax.grid(True, linestyle='--', linewidth=0.5, alpha=0.5, color='white')
             ax.set_axisbelow(True)
@@ -140,30 +182,28 @@ class StatisticalREBR:
             pass
 
         else:
-            raise ValueError('graph debe ser True o False')
+            raise ValueError('[ERROR] graph debe ser True o False')
 
-        print(f'The asymmetry coefficient is: {As:.2f}')
+        print(f'[OK] el coeficiente de asimetria es: {As:.2f}')
         return As
     
 
     @staticmethod
-    def percentile(col_quantitative, K: int):
+    def percentil(col_quantitative, K: int):
         """
         K = Porcentaje de interés.
         """
-        sorted_data = sorted(col_quantitative)
+        datos = StatisticalREBR.limpieza_valores(col_quantitative)
+        sorted_data = sorted(datos)
         N = len(sorted_data)
-        pos = (N - 1) * K / 100
-        lower = int(np.floor(pos))
-        upper = int(np.ceil(pos))
+        P = (N - 1) * K / 100
+        i = int(P)
+        f = P - i
         
-        if lower == upper:
-            i = sorted_data[int(pos)]
-            
+        if i + 1 < N:
+            return sorted_data[i] + f * (sorted_data[i + 1] - sorted_data[i])
         else:
-            i = sorted_data[lower] + (pos - lower) * (sorted_data[upper] - sorted_data[lower])
-
-        return i
+            return sorted_data[i]  # cuando P apunta al último elemento
 
 
     @staticmethod
