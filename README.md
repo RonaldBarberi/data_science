@@ -16,7 +16,12 @@
     <li>
       Modelo de Regresión Logistica para predecir que clientes son más propensos a utilizar su tarjeta, puedes verlo <a href="https://github.com/RonaldBarberi/data_science/tree/main/projects" target="_blank">aquí</a>
     </li>
-  </ul>
+    <li>
+      Modelo de Regresión Lineal para predecir el costo del mercado para los elementos en el próximo mes, puedes verlo <a href="https://github.com/RonaldBarberi/data_science/tree/main/projects" target="_blank">aquí</a>
+    </li>
+    <li>
+      Modelo de Reconocimiento para detectar patrones especificos con las manos y en base a ello ejecutar diversas acciones, puedes verlo <a href="https://github.com/RonaldBarberi/data_science/tree/main/projects" target="_blank">aquí</a>
+    </li>
 
 
   ----
