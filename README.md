@@ -14,7 +14,7 @@
   <h2>Proyectos</h2>
   <ul>
     <li>
-      Modelo de Regresión Logistica para predecir que clientes son más propensos a utilizar su tarjeta, puedes verlo <a href="https://github.com/RonaldBarberi/data_science/tree/main/projects" target="_blank">aquí</a>
+      Modelo de Regresión Logistica para predecir que clientes son más propensos a utilizar su tarjeta, puedes verlo <a href="https://github.com/RonaldBarberi/data_science/blob/main/projects/ml_rg_lgt_clientes_uso_tarjeta/src/_ml_model_log.ipynb" target="_blank">aquí</a>
     </li>
     <li>
       Modelo de Regresión Lineal para predecir el costo del mercado para los elementos en el próximo mes, puedes verlo <a href="https://github.com/RonaldBarberi/data_science/tree/main/projects" target="_blank">aquí</a>
