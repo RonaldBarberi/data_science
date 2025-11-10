@@ -16,7 +16,7 @@
   <details>
     <summary><b>Machine Learning</b></summary>
       <details>
-        <summary>Regresión Lienal</summary>
+        <summary>Regresión Lineal</summary>
         <ul>
           <li>
             Modelo de Regresión Lineal para predecir el costo del mercado para los elementos en el próximo mes, puedes verlo <a href="https://github.com/RonaldBarberi/data_science/blob/main/projects/mdl_rg_lnl_mercado/src/mdl_rg_lnl_mercado.ipynb" target="_blank">aquí</a>
