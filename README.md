@@ -35,7 +35,7 @@
         <summary>RandomForest</summary>
         <ul>
           <li>
-            Modelo de RandomForest para predecir la probabilidad de un cliente en base a sus caracteristicas de que realice una compra, puedes verlo <a href="https://github.com/RonaldBarberi/data_analytics/blob/main/projects/eda_reg_clientes_venta_bpo/src/eda_validator_data.ipynb" target="_blank">aquí</a>
+            Modelo de RandomForest para predecir la probabilidad de un cliente en base a sus caracteristicas de que realice una compra, puedes verlo <a href="https://github.com/RonaldBarberi/data_science/blob/main/projects/mdl_rdm_frt_clientes_propensos_venta/src/ml_rdm_frt_clients_sale.ipynb" target="_blank">aquí</a>
           </li>
         </ul>
       </details>
